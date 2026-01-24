@@ -1,6 +1,6 @@
 # main.py
 from fastapi import FastAPI, HTTPException, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
@@ -50,17 +50,29 @@ class SensorDataResponse(BaseModel):
 #                           ENDPOINTS
 # ═══════════════════════════════════════════════════════════════
 
+
+# Serve favicon (browser requests this automatically)
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("icon.png", media_type="image/png")
+
+
 @app.get("/", response_class=HTMLResponse)
 async def simple_html_response():
-    # Define your simple HTML content as a string
-    html_content = """
-    <html>
-        <body>
-            <h1>Hello, UpTimeRobot!</h1>
-        </body>
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>UpTimeRobot Test</title>
+        <link rel="icon" type="image/png" href="/favicon.ico">
+    </head>
+    <body>
+        <h1>Hello, UpTimeRobot!</h1>
+    </body>
     </html>
     """
-    return HTMLResponse(content=html_content, status_code=200)
+
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat_with_agent(request: ChatRequest):
